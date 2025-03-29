@@ -2,7 +2,7 @@ spring:
   application:
     name: token-service
   profiles:
-    active: local
+    active: prod
 
 server:
   port: 9003
