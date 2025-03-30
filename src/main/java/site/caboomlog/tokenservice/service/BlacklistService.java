@@ -25,7 +25,7 @@ public class BlacklistService {
     }
 
     public boolean isBlacklisted(String accessToken) {
-        return Boolean.FALSE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + accessToken));
+        return Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + accessToken));
     }
 
     public void logout(String accessToken) {
