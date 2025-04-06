@@ -12,9 +12,9 @@ public class AccessTokenService {
 
     private final JwtTokenUtils jwtTokenUtils;
 
-    public TokenIssueResponse issueToken(Long mbNo) {
-        String accessToken = jwtTokenUtils.generateAccessToken(mbNo);
-        String refreshToken = jwtTokenUtils.generateRefreshToken(mbNo);
+    public TokenIssueResponse issueToken(String mbUuid) {
+        String accessToken = jwtTokenUtils.generateAccessToken(mbUuid);
+        String refreshToken = jwtTokenUtils.generateRefreshToken(mbUuid);
         return new TokenIssueResponse(accessToken, refreshToken);
     }
 
@@ -23,7 +23,7 @@ public class AccessTokenService {
         boolean tokenValid = jwtTokenUtils.isTokenValid(token);
         if (tokenValid) {
             response.setValid(true);
-            response.setMbNo(jwtTokenUtils.getMbNoFromToken(token));
+            response.setMbUuid(jwtTokenUtils.getMbUuidFromToken(token));
         } else {
             response.setValid(false);
         }

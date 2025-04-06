@@ -21,22 +21,22 @@ public class RefreshTokenService {
     private final StringRedisTemplate redisTemplate;
     private final JwtTokenUtils jwtTokenUtils;
 
-    public void store(Long mbNo, String refreshToken) {
+    public void store(String mbUuid, String refreshToken) {
         redisTemplate.opsForValue().set(
-                REFRESH_PREFIX + mbNo,
+                REFRESH_PREFIX + mbUuid,
                 refreshToken,
                 Duration.ofMillis(refreshExpirationTime)
         );
     }
 
-    private String getToken(Long mbNo) {
-        return redisTemplate.opsForValue().get(REFRESH_PREFIX + mbNo);
+    private String getToken(String mbUuid) {
+        return redisTemplate.opsForValue().get(REFRESH_PREFIX + mbUuid);
     }
 
     public void deleteToken(String refreshToken) {
         if (jwtTokenUtils.isTokenValid(refreshToken)) {
-            Long mbNo = jwtTokenUtils.getMbNoFromToken(refreshToken);
-            redisTemplate.delete(REFRESH_PREFIX + mbNo);
+            String mbUuid = jwtTokenUtils.getMbUuidFromToken(refreshToken);
+            redisTemplate.delete(REFRESH_PREFIX + mbUuid);
         }
     }
 
@@ -44,12 +44,12 @@ public class RefreshTokenService {
         if (!jwtTokenUtils.isTokenValid(refreshToken)) {
             throw new InvalidTokenException("Invalid refresh token");
         }
-        Long mbNo = jwtTokenUtils.getMbNoFromToken(refreshToken);
-        String storedRefreshToken = getToken(mbNo);
+        String mbUuid = jwtTokenUtils.getMbUuidFromToken(refreshToken);
+        String storedRefreshToken = getToken(mbUuid);
         if (!refreshToken.equals(storedRefreshToken)) {
             throw new InvalidTokenException("Refresh token mismatch");
         }
-        String newAccessToken = jwtTokenUtils.generateAccessToken(mbNo);
+        String newAccessToken = jwtTokenUtils.generateAccessToken(mbUuid);
         return new TokenRefreshResponse(newAccessToken);
     }
 }

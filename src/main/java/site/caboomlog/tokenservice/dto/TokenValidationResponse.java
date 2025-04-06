@@ -10,5 +10,5 @@ import lombok.Setter;
 @Setter @Getter
 public class TokenValidationResponse {
     private boolean valid;
-    private Long mbNo;
+    private String mbUuid;
 }
