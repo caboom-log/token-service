@@ -21,12 +21,12 @@ public class TokenController {
 
     @PostMapping("/token/issue")
     public ResponseEntity<TokenIssueResponse> issueToken(@RequestBody TokenIssueRequest request) {
-        Long mbNo = request.getMbNo();
-        if (mbNo == null || mbNo <= 0) {
-            throw new BadRequestException("MbNo cannot be null or empty");
+        String mbUuid = request.getMbUuid();
+        if (mbUuid == null || mbUuid.isBlank()) {
+            throw new BadRequestException("MbUuid cannot be null or empty");
         }
-        TokenIssueResponse response = accessTokenService.issueToken(mbNo);
-        refreshTokenService.store(mbNo, response.getRefreshToken());
+        TokenIssueResponse response = accessTokenService.issueToken(mbUuid);
+        refreshTokenService.store(mbUuid, response.getRefreshToken());
         return ResponseEntity.ok(response);
     }
 

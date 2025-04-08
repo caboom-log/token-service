@@ -11,8 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import site.caboomlog.tokenservice.dto.TokenIssueResponse;
 import site.caboomlog.tokenservice.dto.TokenValidationResponse;
 import site.caboomlog.tokenservice.util.JwtTokenUtils;
+import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,29 +28,31 @@ class AccessTokenServiceTest {
     @DisplayName("토큰 발급 성공")
     void issueToken() {
         // given
-        Mockito.when(jwtTokenUtils.generateAccessToken(anyLong()))
+        Mockito.when(jwtTokenUtils.generateAccessToken(anyString()))
                 .thenReturn("test_access_token");
-        Mockito.when(jwtTokenUtils.generateRefreshToken(anyLong()))
+        Mockito.when(jwtTokenUtils.generateRefreshToken(anyString()))
                 .thenReturn("test_refresh_token");
 
         // when
-        TokenIssueResponse response = accessTokenService.issueToken(1L);
+        String testMbUuid = UUID.randomUUID().toString();
+        TokenIssueResponse response = accessTokenService.issueToken(testMbUuid);
 
         // then
         Assertions.assertAll(
                 () -> Assertions.assertEquals("test_access_token", response.getAccessToken()),
                 () -> Assertions.assertEquals("test_refresh_token", response.getRefreshToken())
         );
-        Mockito.verify(jwtTokenUtils, Mockito.times(1)).generateAccessToken(anyLong());
-        Mockito.verify(jwtTokenUtils, Mockito.times(1)).generateRefreshToken(anyLong());
+        Mockito.verify(jwtTokenUtils, Mockito.times(1)).generateAccessToken(anyString());
+        Mockito.verify(jwtTokenUtils, Mockito.times(1)).generateRefreshToken(anyString());
     }
 
     @Test
     @DisplayName("토큰 검증 성공")
     void validateToken() {
         // given
+        String testMbUuid = UUID.randomUUID().toString();
         Mockito.when(jwtTokenUtils.isTokenValid(anyString())).thenReturn(true);
-        Mockito.when(jwtTokenUtils.getMbNoFromToken(anyString())).thenReturn(1L);
+        Mockito.when(jwtTokenUtils.getMbUuidFromToken(anyString())).thenReturn(testMbUuid);
 
         // when
         TokenValidationResponse response = accessTokenService.validateToken("test_access_token");
@@ -58,7 +60,7 @@ class AccessTokenServiceTest {
         // then
         Assertions.assertAll(
                 () -> Assertions.assertTrue(response.isValid()),
-                () -> Assertions.assertEquals(1L, response.getMbNo())
+                () -> Assertions.assertEquals(testMbUuid, response.getMbUuid())
         );
         Mockito.verify(jwtTokenUtils, Mockito.times(1)).isTokenValid(anyString());
     }

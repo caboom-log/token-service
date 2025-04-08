@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class TokenIssueRequest {
-    private Long mbNo;
+    private String mbUuid;
 }

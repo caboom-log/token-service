@@ -19,8 +19,8 @@ import site.caboomlog.tokenservice.service.BlacklistService;
 import site.caboomlog.tokenservice.service.RefreshTokenService;
 
 import java.util.Map;
+import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -49,11 +49,12 @@ class TokenControllerTest {
     @DisplayName("토큰 발급 요청 성공")
     void issueToken() throws Exception {
         // given
-        Map<String, Long> request = Map.of("mbNo", 1L);
+        String testUuid = UUID.randomUUID().toString();
+        Map<String, String> request = Map.of("mbUuid", testUuid);
         TokenIssueResponse response = new TokenIssueResponse(
                 "test_access_token",
                 "test_refresh_token");
-        Mockito.when(accessTokenService.issueToken(anyLong()))
+        Mockito.when(accessTokenService.issueToken(anyString()))
                                 .thenReturn(response);
 
         // when & then
@@ -70,9 +71,9 @@ class TokenControllerTest {
     void issueTokenFail_BadRequest() throws Exception {
         mockMvc.perform(post("/token/issue")
                         .header(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                        .content("{\"mbNo\":\"\"}"))
+                        .content("{\"mbUuid\":\"\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorMessage").value("MbNo cannot be null or empty"));
+                .andExpect(jsonPath("$.errorMessage").value("MbUuid cannot be null or empty"));
     }
 
     @Test
@@ -82,7 +83,8 @@ class TokenControllerTest {
         Map<String, String> request = Map.of("token", "test_access_token");
         Mockito.when(blacklistService.isBlacklisted(anyString()))
                 .thenReturn(false);
-        TokenValidationResponse response = new TokenValidationResponse(true, 1L);
+        String testMbUuid = UUID.randomUUID().toString();
+        TokenValidationResponse response = new TokenValidationResponse(true, testMbUuid);
         Mockito.when(accessTokenService.validateToken("test_access_token"))
                         .thenReturn(response);
 
@@ -93,7 +95,7 @@ class TokenControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.valid").value(true))
-                .andExpect(jsonPath("$.mbNo").value(1L));
+                .andExpect(jsonPath("$.mbUuid").value(testMbUuid));
     }
 
     @Test

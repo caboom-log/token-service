@@ -21,22 +21,23 @@ public class JwtTokenUtils {
     @Value(("${token.expiration_time.refresh}"))
     private Long refreshExpirationTime;
 
-    public String generateAccessToken(Long mbNo) {
-        return generateToken(mbNo, accessExpirationTime);
+    public String generateAccessToken(String mbUuid) {
+        return generateToken(mbUuid, accessExpirationTime);
     }
 
-    public String generateRefreshToken(Long mbNo) {
-        return generateToken(mbNo, refreshExpirationTime);
+    public String generateRefreshToken(String mbUuid) {
+        return generateToken(mbUuid, refreshExpirationTime);
     }
 
-    private String generateToken(Long mbNo, Long expirationTime) {
+    private String generateToken(String mbUuid, Long expirationTime) {
 
-        Claims claims = Jwts.claims().setSubject(mbNo.toString());
+        Claims claims = Jwts.claims().setSubject(mbUuid);
 
         Date now = new Date();
         Date expireAt = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
+                .setSubject(mbUuid)
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expireAt)
@@ -57,13 +58,13 @@ public class JwtTokenUtils {
         }
     }
 
-    public Long getMbNoFromToken(String token) {
+    public String getMbUuidFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secret)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return Long.parseLong(claims.getSubject());
+        return claims.getSubject();
     }
 
     public long getRemainingTime(String token) {
